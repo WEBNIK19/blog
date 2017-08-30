@@ -26,15 +26,17 @@ class db {
 		$args = func_get_args();
 		$sql = array_shift($args);
 		$link = $this->mysqli;
+		
 		$args = array_map(function ($param) use ($link){
-			return "'".$link->escape_string($param)."'";
+			return $link->escape_string($param);
 		},$args);
-		$sql = str_replace(array('%','?'),array('%%','%s'),$sql);
 
+		$sql = str_replace(array('%','?'),array('%%','%s'),$sql);
+    
 		array_unshift($args, $sql);
 
 		$sql = call_user_func_array('sprintf',$args);
-
+		//echo $sql;
 		$this->last = $this->mysqli->query($sql);
 		if($this->last === false) echo 'Database error: '.$this->mysqli->error;
 
@@ -50,6 +52,9 @@ class db {
 			$result[] = $row;
 		};
 		return $result;
+	}
+	public function row(){
+   return $this->last->fetch_row();
 	}
 }
 

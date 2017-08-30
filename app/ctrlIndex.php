@@ -2,27 +2,29 @@
 
 class ctrlIndex extends ctrl{
 
-	function index(){
 
-		$this->posts = $this->db->query("SELECT * FROM post ORDER BY ctime DESC")->all();
+	function index($page = 1){
 		
-		$this->out('posts.php');
-		
+		$this->pager = pager::getPager($page);
+		$this->posts = $this->pager->GetAllPosts($this->db);/*$this->db->query("SELECT * FROM post  ORDER BY ctime DESC")->all()*/;
+		//echo $this->pager->page."<br />";
+		$this->out('posts.php');	
 	}
 	
 	function login(){
 
 		if(!empty($_POST['email']) && !empty($_POST['password'])){
-			$this->user = $this->db->query("SELECT * FROM admin WHERE email = ? AND password = ?", $_POST['email'], md5($_POST['password']))->assoc();
+			$this->user = $this->db->query("SELECT * FROM admin WHERE email = '?' AND password = '?'", $_POST['email'], md5($_POST['password']))->assoc();
 
 			if($this->user){
 				
-				$key = md5(microtime().rand(0,10000));
+				/*$key = md5(microtime().rand(0,10000));
 				setcookie('uid',$this->user['id'],time() + 86400*30, '/');
 				setcookie('key',$key,time() + 86400*30, '/');
 				setcookie('name',$this->user['login'],time() + 86400*30, '/');
 
-				$this->db->query("UPDATE admin SET cookie = ? WHERE id = ?",$key,$this->user['id']);
+				$this->db->query("UPDATE admin SET cookie = '?' WHERE id = '?'",$key,$this->user['id']);*/
+				$this->authCookie();
 				header("Location: /");
 			}else{
 				$this->error="Неправильный эмейл или пароль";
@@ -36,13 +38,33 @@ class ctrlIndex extends ctrl{
 		setcookie('key','',0, '/');
 		header("Location: /");
 	}
+
+	function signup(){
+		
+		if(!empty($_POST['login']) && !empty($_POST['email']) && !empty($_POST['password']) /*&& !empty($_FILES['avatar']['name']) */&& $_POST['password'] == $_POST['repassword']){
+      $avatar = file_get_contents($_FILES['avatar']['tmp_name']);
+			$this->db->query("INSERT INTO admin(login,email,password,avatar) VALUES ('?','?','?','?')",$_POST['login'],$_POST['email'],md5($_POST['password']),$avatar);
+
+			$this->user = $this->db->query("SELECT * FROM admin WHERE email = '?' AND password = '?'", $_POST['email'], md5($_POST['password']))->assoc();
+
+			$this->authCookie();
+				//header("Location: /");
+		}elseif($_POST['password'] !== $_POST['repassword']){
+
+			$this->error=array('style' => 'has-error',
+			'message' => "Пароли не совпадают");
+		;
+		} 
+		$this->out("signup.php");
+	}
+
 	function add(){
 
 		if(!$this->user) return header("Location: /");
 
 		if(!empty($_POST['title']) && !empty($_POST['post'])){
 
-			$this->db->query("INSERT INTO post(author,ctime,title,post) VALUES(?,?,?,?)",$_COOKIE['name'],time(),htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']));
+			$this->db->query("INSERT INTO post(author,ctime,title,post) VALUES('?','?','?','?')",$_COOKIE['name'],time(),htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']));
 			header("Location: /");
 
 		}
@@ -57,7 +79,7 @@ class ctrlIndex extends ctrl{
 	function edit($id){
 		if(!$this->user) return header("Location: /");
 		if(!empty($_POST)){
-			$this->db->query("UPDATE post SET title=?, post=? WHERE id=?", htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']),$id);
+			$this->db->query("UPDATE post SET title='?', post='?'' WHERE id='?'", htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']),$id);
 			header("Location: /");
 		}
 		$this->post = $this->db->query("SELECT * FROM post WHERE id=?",$id)->assoc();
@@ -73,7 +95,7 @@ class ctrlIndex extends ctrl{
 
 	function addComment($id){
 		setcookie('cmntr',$_POST['author'],0,'/');
-		$this->db->query("INSERT INTO comments(pid,author,comment) VALUES (?,?,?)",$id,htmlspecialchars($_POST['author']),htmlspecialchars($_POST['comment'])); 
+		$this->db->query("INSERT INTO comments(pid,author,comment) VALUES ('?','?','?')",$id,htmlspecialchars($_POST['author']),htmlspecialchars($_POST['comment'])); 
 		header("Location: /?comment/".intval($id));
 	}
 

@@ -1,4 +1,6 @@
+<div class="container">
 <?php 
+echo $this->pager->pagination($this->db);
 
 foreach ($this->posts as $key => $value){ ?>
 <div class="panel panel-primary">
@@ -15,5 +17,5 @@ foreach ($this->posts as $key => $value){ ?>
 	</div>
 </div>
 
-
 <?php }?>
+</div>
