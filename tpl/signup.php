@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8 col-lg-6 col-lg-offset-3">
-		<?php print_r($_FILES); ?>
+		
 			<form enctype="multipart/form-data" action=""  method="post">
 				<div class="form-group">
 					<label for="log">Login</label>
@@ -27,7 +27,7 @@
 				</div>
 				<div class="form-group btn-toolbar">
 					<div class="btn-group">
-						<input type="submit" class="btn btn-success" value="Зарегистрироваться">
+						<input type="submit" class="btn btn-success" onclick="alert('Вы успешно зарегистрировались!')" value="Зарегистрироваться">
 						<input type="reset" class="btn btn-danger" value="Сбросить"> 
 					</div>
 				</div>

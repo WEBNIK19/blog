@@ -5,10 +5,10 @@
 			<h1 class="page-header"><?=$this->post['title']?></h1>
 			<div class="container-fluid">
 				<p class="lead text-justify"><?=$this->post['post']?></p>
-				<div class="btn-toolbar pull-right">
+				<?php if($this->user){?><div class="btn-toolbar pull-right">
 					<a <?='href="/?edit/'.$this->post['id'].'"'?> class="btn  btn-success btn-lg pull-right"><i class="glyphicon glyphicon-pencil"></i> Редактировать</a>
 					<a <?='href="/?del/'.$this->post['id'].'"'?> class="btn  btn-danger btn-lg pull-right" onclick="return confirm('Точно удалить?');"><i class="glyphicon glyphicon-trash"></i> Удалить</a>
-				</div>
+				</div><?php }?>
 			</div>
 			<hr>
 			<div class="comments">

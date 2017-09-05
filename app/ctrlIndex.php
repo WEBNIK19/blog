@@ -6,8 +6,7 @@ class ctrlIndex extends ctrl{
 	function index($page = 1){
 		
 		$this->pager = pager::getPager($page);
-		$this->posts = $this->pager->GetAllPosts($this->db);/*$this->db->query("SELECT * FROM post  ORDER BY ctime DESC")->all()*/;
-		//echo $this->pager->page."<br />";
+		$this->posts = $this->pager->GetAllPosts($this->db);
 		$this->out('posts.php');	
 	}
 	
@@ -18,12 +17,6 @@ class ctrlIndex extends ctrl{
 
 			if($this->user){
 				
-				/*$key = md5(microtime().rand(0,10000));
-				setcookie('uid',$this->user['id'],time() + 86400*30, '/');
-				setcookie('key',$key,time() + 86400*30, '/');
-				setcookie('name',$this->user['login'],time() + 86400*30, '/');
-
-				$this->db->query("UPDATE admin SET cookie = '?' WHERE id = '?'",$key,$this->user['id']);*/
 				$this->authCookie();
 				header("Location: /");
 			}else{
@@ -41,8 +34,12 @@ class ctrlIndex extends ctrl{
 
 	function signup(){
 		
-		if(!empty($_POST['login']) && !empty($_POST['email']) && !empty($_POST['password']) /*&& !empty($_FILES['avatar']['name']) */&& $_POST['password'] == $_POST['repassword']){
+		if(!empty($_POST['login']) && !empty($_POST['email']) && !empty($_POST['password']) /*&& !empty($_FILES['avatar']['name'])*/&& $_POST['password'] == $_POST['repassword']){
+
       $avatar = file_get_contents($_FILES['avatar']['tmp_name']);
+
+      
+
 			$this->db->query("INSERT INTO admin(login,email,password,avatar) VALUES ('?','?','?','?')",$_POST['login'],$_POST['email'],md5($_POST['password']),$avatar);
 
 			$this->user = $this->db->query("SELECT * FROM admin WHERE email = '?' AND password = '?'", $_POST['email'], md5($_POST['password']))->assoc();
@@ -66,30 +63,29 @@ class ctrlIndex extends ctrl{
 
 			$this->db->query("INSERT INTO post(author,ctime,title,post) VALUES('?','?','?','?')",$_COOKIE['name'],time(),htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']));
 			header("Location: /");
-
 		}
+
 		$this->out('add.php');
 	}
 
 	function del($id){
 		if(!$this->user) return header("Location: /");
-		$this->db->query("DELETE FROM post WHERE id=?", $id);
+		$this->db->query("DELETE FROM post WHERE id='?'", $id);
 		header("Location: /");
 	}
 	function edit($id){
 		if(!$this->user) return header("Location: /");
 		if(!empty($_POST)){
-			$this->db->query("UPDATE post SET title='?', post='?'' WHERE id='?'", htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']),$id);
+			$this->db->query("UPDATE post SET title='?', post='?' WHERE id='?'", htmlspecialchars($_POST['title']),htmlspecialchars($_POST['post']),$id);
 			header("Location: /");
 		}
-		$this->post = $this->db->query("SELECT * FROM post WHERE id=?",$id)->assoc();
+		$this->post = $this->db->query("SELECT * FROM post WHERE id='?'",$id)->assoc();
 		$this->out('add.php');
-		
 	}
 
 	function comment($id){
-		$this->post = $this->db->query("SELECT * FROM post WHERE id=?",$id)->assoc();
-		$this->comments = $this->db->query("SELECT * FROM comments WHERE pid=? ORDER BY id DESC",$id)->all();
+		$this->post = $this->db->query("SELECT * FROM post WHERE id='?'",$id)->assoc();
+		$this->comments = $this->db->query("SELECT * FROM comments WHERE pid='?' ORDER BY id DESC",$id)->all();
 		$this->out('comment.php');
 	}
 
@@ -101,8 +97,13 @@ class ctrlIndex extends ctrl{
 
 	function delComment($id,$pid){
 		if(!$this->user) return header("Location: /");
-		$this->db->query("DELETE FROM	comments WHERE id=?",$id);
+		$this->db->query("DELETE FROM	comments WHERE id='?'",$id);
 		header("Location: /?comment/".intval($pid));
 	}
 
+  function image($login){
+  	
+		$this->image = $this->db->query("SELECT avatar FROM admin WHERE login='?'",$login)->row();
+  	$this->out("image.php",true);
+  }
 }

@@ -20,7 +20,6 @@ class ctrl {
 	}
 
 	public function out($tplname,$nested=false){
-		
 		if(!$nested){
 			$this->tpl = $tplname;
 			include "tpl/main.php";
@@ -124,11 +123,9 @@ class pager{
 
 	function pagination(db $db){
 //Общее колличество постов(строк в БД)
-
 		$post_count = $this->CountPosts($db);
-
 //Общее колличество страниц  
-		$count_pages =ceil($post_count/self::$limit);
+		$count_pages = ceil($post_count/self::$limit);
 
 		if(self::$page > $count_pages){
 			self::$page = $count_pages;
@@ -161,9 +158,6 @@ class pager{
 				$pagination .= '<li><a href="/?'.$count_pages.'">Последняя</a></li></ul>';
 			}
 		}
-
 		return $pagination;
 	}
-
 }
-
